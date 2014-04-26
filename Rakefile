@@ -1,5 +1,5 @@
 task :build do
-  system("docker build -t geobin .")
+  system("docker build -t nullstyle/geobin .")
 end
 
 task :run do
@@ -7,7 +7,7 @@ task :run do
 end
 
 task :bash do
-  exec("docker run -i -t --rm geobin /bin/bash")
+  exec("docker run -i -t --rm nullstyle/geobin /bin/bash")
 end
 
 task :psql do

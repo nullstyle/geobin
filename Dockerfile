@@ -22,9 +22,6 @@ RUN /etc/init.d/postgresql start &&\
     createdb -O geobin geobin &&\
     /etc/init.d/postgresql stop
 
-RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
-RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
-
 ENV PGPASSWORD geobin
 
 RUN /etc/init.d/postgresql start &&\
@@ -42,12 +39,15 @@ RUN /etc/init.d/postgresql start &&\
     psql --host 127.0.0.1 --username geobin < /geobin/data/world/tz_world.sql &&\
     /etc/init.d/postgresql stop
 
+ADD postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
+ADD pg_hba.conf     /etc/postgresql/9.3/main/pg_hba.conf
+
 # ruby api
-RUN gem install bundler
-RUN mkdir -p /geobin/api
-ADD ./api/Gemfile /geobin/api/Gemfile
-RUN cd /geobin/api && bundle install
-ADD ./api /geobin/api
+# RUN gem install bundler
+# RUN mkdir -p /geobin/api
+# ADD ./api/Gemfile /geobin/api/Gemfile
+# RUN cd /geobin/api && bundle install
+# ADD ./api /geobin/api
 
 # supervisord
 
@@ -56,8 +56,8 @@ ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 
 # postgresql
-EXPOSE 5432
+EXPOSE 5433
 # sinatra
 EXPOSE 8080
 # default command is to run the db server
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
