@@ -8,7 +8,7 @@ Dir.chdir("../data") do
 end
 
 # move into geographies table
-DB[:geographies].import([:type, :id, :geog], DB[:tz_world].select("timezone", :tzid, :geog))
+DB[:geographies].import([:type, :id, :geog], DB[:tz_world].select("Timezone", :tzid, :geog))
 
 # remove tz_world, since we will use it through geographies instead
 
