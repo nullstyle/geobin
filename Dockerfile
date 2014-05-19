@@ -14,6 +14,9 @@ RUN apt-get install -y ruby-full
 RUN apt-get install -y build-essential
 RUN apt-get install -y git-core
 RUN apt-get install -y libssl-dev
+RUN apt-get install -y osmosis
+RUN apt-get install -y osm2pgsql
+RUN apt-get install -y libpq-dev
 
 USER postgres
 
@@ -30,20 +33,27 @@ RUN /etc/init.d/postgresql start &&\
 
 USER root
 
+# main tables creation and population
 RUN mkdir -p /geobin/
 ADD ./data /geobin/data
-RUN cd /geobin/data && unzip tz_world.zip
-RUN cd /geobin/data/world && shp2pgsql -G -s 4326 -I -S -D tz_world.shp > tz_world.sql
 
-RUN /etc/init.d/postgresql start &&\
-    psql --host 127.0.0.1 --username geobin < /geobin/data/world/tz_world.sql &&\
+RUN gem install bundler
+ADD ./loader/Gemfile /geobin/loader/Gemfile
+RUN cd /geobin/loader && bundle install
+
+ADD ./loader /geobin/loader
+RUN cd /geobin/loader &&\
+    /etc/init.d/postgresql start &&\
+    bundle exec ruby run.rb &&\
     /etc/init.d/postgresql stop
+
+# final configurations
 
 ADD postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
 ADD pg_hba.conf     /etc/postgresql/9.3/main/pg_hba.conf
 
 # ruby api
-# RUN gem install bundler
+
 # RUN mkdir -p /geobin/api
 # ADD ./api/Gemfile /geobin/api/Gemfile
 # RUN cd /geobin/api && bundle install

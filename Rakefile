@@ -3,7 +3,7 @@ task :build do
 end
 
 task :run do
-  system("docker run -i -t --rm -p 5432:5432 -p 8080:8080 geobin")
+  system("docker run -i -t --rm -p 5433:5433 -p 8080:8080 nullstyle/geobin")
 end
 
 task :bash do
@@ -11,5 +11,5 @@ task :bash do
 end
 
 task :psql do
-  exec("PGPASSWORD=geobin psql --port 5433 --host 127.0.0.1 --username geobin --no-password")
+  exec("PGPASSWORD=geobin psql --port 5433 --host localdocker --username geobin --no-password")
 end
